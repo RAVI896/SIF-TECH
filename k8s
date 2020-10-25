@@ -1,0 +1,70 @@
+create Route53 by using which your created domain
+- open that domain 
+-  take this domain namespaces values and paste this values to your dot.tk
+
+
+Step-2
+- craete domain in [dot.tk]
+- services --> my domains --> manage domains --> management tools --> name servers
+- paste those domain namespaces values to here 
+
+Step-3
+- create IAM role with Admin Access
+
+Step-4
+- create EC2 with that IAM role
+
+Step-5
+- create S3 bucket for this 
+#aws s3 mb s3://rrhome --region ap-south-1
+
+Step-5
+- Follow this
+
+Kops setup :
+
+curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+chmod +x kops-linux-amd64
+sudo mv kops-linux-amd64 /usr/local/bin/kops
+kops version
+
+kubctl setup :
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version
+
+kubectl version --short
+
+
+vi ~/.bashrc
+
+export KOPS_CLUSTER_NAME=raviram.tk
+export KOPS_STATE_STORE=s3://rrhome
+
+source ~/.bashrc
+
+ssh-keygen --> enter --> enter --> enter [it will create key to ssh cluster]
+
+cd .ssh (find out the key)
+
+kops create cluster \
+--state=${KOPS_STATE_STORE} \
+--node-count=2 \
+--master-size=t2.micro \
+--node-size=t2.micro \
+--zones=ap-south-1a,ap-south-1b \
+--name=${KOPS_CLUSTER_NAME}
+
+kops update cluster --name raviram.tk --yes
+
+
+kops update cluster raviram.tk --yes
+kops update cluster --name=${KOPS_CLUSTER_NAME} --state=${KOPS_STATE_STORE} --yes  (if above command not work we will run this command)
+kubectl cluster-info
+kubectl cluster-info dump
+
+kops delete cluster --state=${KOPS_STATE_STORE} --name=${KOPS_CLUSTER_NAME} --yes
+
